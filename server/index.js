@@ -1,7 +1,11 @@
 const express = require('express');
+const { Console } = require('winston/lib/winston/transports');
+const logger = require('./config/logger');
 
+// Init app
 const app = express();
 
+// Routes
 app.get('/', (req, res, next) => {
   res.json({
     message: 'Welcome to the Checklist API',
@@ -9,18 +13,23 @@ app.get('/', (req, res, next) => {
 });
 
 // No route found handler
-app.use((req, res, next) => {
-  res.status(404);
+app.use((req, res, next) => {  
+  const message = `Route ${req.url} not found`;
+  const statusCode = 404;
+
+  logger.warn(message);
+  res.status(statusCode);
   res.json({
-    message: 'Error. Route not found'
+    message,
   });
 });
 
 // Error handler
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
+  
+  logger.error(message);
   res.status(statusCode);
-
   res.json({
     message,
   });
